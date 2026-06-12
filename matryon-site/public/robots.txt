@@ -6,5 +6,5 @@ Disallow: /register
 Disallow: /admin
 Disallow: /profile
 
-Host: https://matryon.ru
-Sitemap: https://matryon.ru/sitemap.xml
+Host: https://matryon.onrender.com
+Sitemap: https://matryon.onrender.com/sitemap.xml
