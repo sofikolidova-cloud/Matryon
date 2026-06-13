@@ -189,3 +189,17 @@ CREATE POLICY "Avatar own update" ON storage.objects
   FOR UPDATE USING (
     bucket_id = 'avatars' AND auth.uid() = owner
   );
+
+-- 9. Функция проверки существования email (для регистрации)
+CREATE OR REPLACE FUNCTION check_email_exists(email_to_check TEXT)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM auth.users WHERE email = email_to_check
+  );
+END;
+$$;

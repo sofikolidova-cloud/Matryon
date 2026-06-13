@@ -71,6 +71,15 @@ async function sendMagicLink() {
   }
 
   try {
+    if (!isLogin.value) {
+      const { data: exists, error: checkErr } = await supabase
+        .rpc('check_email_exists', { email_to_check: email.value })
+      if (checkErr) throw checkErr
+      if (exists) {
+        throw new Error('Пользователь с таким email уже зарегистрирован')
+      }
+    }
+
     const { error } = await supabase.auth.signInWithOtp({
       email: email.value,
       options: {
