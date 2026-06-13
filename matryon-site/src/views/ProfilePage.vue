@@ -14,11 +14,21 @@ const { user, signOut } = useAuth()
 
 const fullName = ref('')
 const email = ref('')
+const origEmail = ref('')
 const phone = ref('')
 const loading = ref(true)
 const saving = ref(false)
 const errorMsg = ref('')
 const successMsg = ref('')
+const emailChanged = ref(false)
+
+function formatName(val) {
+  return val.replace(/\S+/g, w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+}
+
+function onNameInput(e) {
+  fullName.value = formatName(e.target.value)
+}
 
 watch(user, (u) => {
   if (!u) router.push('/login')
@@ -28,7 +38,8 @@ async function loadProfile() {
   if (!user.value) return
   const meta = user.value.user_metadata || {}
   fullName.value = meta.full_name || ''
-  email.value = user.value.email || meta.email || ''
+  origEmail.value = user.value.email || meta.email || ''
+  email.value = origEmail.value
   phone.value = meta.phone || ''
   loading.value = false
 }
@@ -40,19 +51,24 @@ async function saveProfile() {
   const supabase = getSupabase()
   if (!supabase) { saving.value = false; return }
 
-  const { error: profileErr } = await supabase
-    .from('profiles')
-    .update({ full_name: fullName.value })
-    .eq('id', user.value.id)
+  const tasks = [
+    supabase.from('profiles').update({ full_name: fullName.value, email: email.value }).eq('id', user.value.id),
+    supabase.auth.updateUser({ data: { full_name: fullName.value, email: email.value } })
+  ]
 
-  if (profileErr) {
-    errorMsg.value = profileErr.message
+  if (email.value !== origEmail.value) {
+    tasks.push(supabase.auth.updateUser({ email: email.value }))
+  }
+
+  const results = await Promise.all(tasks)
+
+  const err = results.find(r => r.error)
+  if (err) {
+    errorMsg.value = err.error.message
   } else {
-    const { error: metaErr } = await supabase.auth.updateUser({
-      data: { full_name: fullName.value }
-    })
-    if (metaErr) {
-      errorMsg.value = metaErr.message
+    if (email.value !== origEmail.value) {
+      emailChanged.value = true
+      origEmail.value = email.value
     } else {
       successMsg.value = 'Профиль сохранён'
     }
@@ -85,11 +101,11 @@ onMounted(loadProfile)
         <div class="profile-fields">
           <div class="profile-field">
             <label>ФИО</label>
-            <input v-model="fullName" type="text" placeholder="Иванов Иван Иванович" />
+            <input :value="fullName" type="text" placeholder="Иванов Иван Иванович" @input="onNameInput" />
           </div>
           <div class="profile-field">
             <label>ЭЛЕКТРОННАЯ ПОЧТА</label>
-            <input :value="email" type="email" disabled />
+            <input v-model="email" type="email" placeholder="example@mail.ru" />
           </div>
           <div class="profile-field">
             <label>НОМЕР ТЕЛЕФОНА</label>
@@ -99,6 +115,7 @@ onMounted(loadProfile)
 
         <p v-if="errorMsg" class="profile-error">{{ errorMsg }}</p>
         <p v-if="successMsg" class="profile-success">{{ successMsg }}</p>
+        <p v-if="emailChanged" class="profile-email-changed">На новый email отправлено письмо с подтверждением. Старый email станет доступен для регистрации после подтверждения.</p>
 
         <button class="profile-save" :disabled="saving" @click="saveProfile">
           {{ saving ? 'СОХРАНЕНИЕ...' : 'СОХРАНИТЬ' }}
@@ -205,6 +222,11 @@ onMounted(loadProfile)
   font-family: 'Roboto Mono', monospace;
   font-size: 14px;
   color: #2e7d32;
+}
+.profile-email-changed {
+  font-family: 'Roboto Mono', monospace;
+  font-size: 14px;
+  color: #1565c0;
 }
 .profile-save {
   width: 100%;

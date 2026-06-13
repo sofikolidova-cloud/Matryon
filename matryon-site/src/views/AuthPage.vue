@@ -71,18 +71,28 @@ async function sendMagicLink() {
   }
 
   try {
-    const { error } = await supabase.auth.signInWithOtp({
-      email: email.value,
-      options: {
-        data: {
-          full_name: fullName.value,
-          phone: phone.value
-        },
-        shouldCreateUser: !isLogin.value,
-        emailRedirectTo: window.location.origin
-      }
-    })
-    if (error) throw error
+    if (isLogin.value) {
+      const { error } = await supabase.auth.signInWithOtp({
+        email: email.value,
+        options: {
+          shouldCreateUser: false,
+          emailRedirectTo: window.location.origin
+        }
+      })
+      if (error) throw error
+    } else {
+      const { error } = await supabase.auth.signUp({
+        email: email.value,
+        options: {
+          data: {
+            full_name: fullName.value,
+            phone: phone.value
+          },
+          emailRedirectTo: window.location.origin
+        }
+      })
+      if (error) throw error
+    }
 
     sent.value = true
   } catch (e) {
