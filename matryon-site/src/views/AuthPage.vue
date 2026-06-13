@@ -78,7 +78,8 @@ async function sendMagicLink() {
           full_name: fullName.value,
           phone: phone.value
         },
-        shouldCreateUser: !isLogin.value
+        shouldCreateUser: !isLogin.value,
+        emailRedirectTo: window.location.origin
       }
     })
     if (error) throw error

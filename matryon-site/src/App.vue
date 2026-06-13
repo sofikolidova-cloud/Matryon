@@ -8,6 +8,10 @@ const { init } = useAuth()
 
 onMounted(async () => {
   const recovered = await init()
+  if (window.location.hash.includes('error=')) {
+    router.replace('/')
+    return
+  }
   if (recovered) router.replace('/')
 })
 </script>
