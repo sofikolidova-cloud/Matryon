@@ -10,7 +10,7 @@ if (hash.includes('access_token=')) {
     accessToken: params.get('access_token'),
     refreshToken: params.get('refresh_token')
   }
-  history.replaceState(null, '', '/#/')
+  window.location.hash = '#/'
 }
 
 createApp(App).use(router).mount('#app')

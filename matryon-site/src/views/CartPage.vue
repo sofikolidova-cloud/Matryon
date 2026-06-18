@@ -20,6 +20,11 @@ watch(user, (val) => {
 })
 
 onMounted(async () => {
+  try {
+    const raw = localStorage.getItem('matryon_cart')
+    if (raw) items.value = JSON.parse(raw)
+  } catch (e) {}
+
   await init()
   if (!user.value) {
     return
