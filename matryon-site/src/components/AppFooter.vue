@@ -74,7 +74,7 @@ const subscribe = async () => {
               </p>
             </div>
           </form>
-          <p v-if="status === 'success'" class="footer__status">Спасибо! Вы подписаны.</p>
+          <p v-if="status === 'success'" class="footer__status">Благодарим, что остаётесь с нами! Будем сообщать о новинках.</p>
           <p v-else-if="status === 'error'" class="footer__status footer__status--error">Ошибка. Попробуйте ещё раз.</p>
         </div>
       </div>

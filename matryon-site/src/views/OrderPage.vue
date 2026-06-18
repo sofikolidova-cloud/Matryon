@@ -2,6 +2,11 @@
 import { ref } from 'vue'
 import AppHeader from '../components/AppHeader.vue'
 import AppFooter from '../components/AppFooter.vue'
+import { useCart } from '../lib/cart.js'
+import { useNotification } from '../lib/notification.js'
+
+const { clearCart } = useCart()
+const { show } = useNotification()
 
 const paymentMethod = ref('card')
 const submitted = ref(false)
@@ -27,8 +32,10 @@ function onExpiryInput(e) {
   cardExpiry.value = formatCardExpiry(e.target.value)
 }
 
-function submitOrder() {
+async function submitOrder() {
   submitted.value = true
+  await clearCart()
+  show('Спасибо за заказ! Наш менеджер свяжется с вами.', 4000)
 }
 </script>
 
