@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import AppHeader from '../components/AppHeader.vue'
 import AppFooter from '../components/AppFooter.vue'
@@ -8,14 +8,20 @@ import { useCart } from '../lib/cart.js'
 import { getFallbackProducts, fetchProducts } from '../lib/productData.js'
 
 const router = useRouter()
-const { user } = useAuth()
+const { user, init } = useAuth()
 const { items, totalItems, load, removeItem, updateQuantity, clearCart } = useCart()
 
 const products = ref({})
 
-onMounted(async () => {
-  if (!user.value) {
+watch(user, (val) => {
+  if (!val) {
     router.push('/login')
+  }
+})
+
+onMounted(async () => {
+  await init()
+  if (!user.value) {
     return
   }
 
