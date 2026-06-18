@@ -4,9 +4,16 @@ import { useRoute, useRouter } from 'vue-router'
 import AppHeader from '../components/AppHeader.vue'
 import AppFooter from '../components/AppFooter.vue'
 import { fetchProductById, fetchProductsByType } from '../lib/productData.js'
+import { useAuth } from '../lib/auth.js'
+import { useCart } from '../lib/cart.js'
+import { useNotification } from '../lib/notification.js'
 
 const route = useRoute()
 const router = useRouter()
+const { user } = useAuth()
+const { addItem } = useCart()
+const { show } = useNotification()
+const adding = ref(false)
 
 const product = ref(null)
 const relatedProducts = ref([])
@@ -67,6 +74,25 @@ const displayPrice = computed(() => {
   if (selectedSpeaker.value === '65 Вт') extra += 4000
   return (base + extra).toLocaleString('ru-RU')
 })
+
+async function handleBuy() {
+  if (!user.value) {
+    router.push('/login?redirect=' + encodeURIComponent(route.fullPath))
+    return
+  }
+  if (!product.value?.id || adding.value) return
+  adding.value = true
+  try {
+    await addItem(product.value.id)
+  } catch (e) {
+    console.error('Cart add error:', e)
+  }
+  adding.value = false
+  show('Товар добавлен в корзину')
+  setTimeout(() => {
+    router.push('/cart')
+  }, 800)
+}
 </script>
 
 <template>
@@ -132,7 +158,7 @@ const displayPrice = computed(() => {
 
           <div class="price-section">
             <span class="price">{{ displayPrice }} РУБЛЕЙ</span>
-            <button class="buy-btn">КУПИТЬ</button>
+            <button class="buy-btn" @click="handleBuy">КУПИТЬ</button>
           </div>
         </div>
       </div>
@@ -167,7 +193,7 @@ const displayPrice = computed(() => {
           </div>
           <div class="lamp-price-section">
             <span class="lamp-price">{{ product.price }} РУБЛЕЙ</span>
-            <button class="lamp-buy-btn">КУПИТЬ</button>
+            <button class="lamp-buy-btn" @click="handleBuy">КУПИТЬ</button>
           </div>
         </div>
       </div>
@@ -202,7 +228,7 @@ const displayPrice = computed(() => {
           </div>
           <div class="socket-price-bar">
             <span class="socket-price">{{ product.price }} РУБЛЕЙ</span>
-            <span class="socket-buy-text">КУПИТЬ</span>
+            <span class="socket-buy-text" @click="handleBuy">КУПИТЬ</span>
           </div>
         </div>
       </div>
