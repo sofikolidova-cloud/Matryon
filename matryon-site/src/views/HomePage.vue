@@ -122,10 +122,14 @@ async function submitReview() {
       model: reviewModel.value,
       text: reviewText.value.trim()
     })
-    if (error) throw new Error(error.message)
+    if (error) {
+      console.error('Review insert error:', error)
+      throw new Error(error.message)
+    }
     showReviewModal.value = false
     await fetchReviews()
   } catch (e) {
+    console.error('Review submit error:', e)
     reviewError.value = e.message
   } finally {
     reviewLoading.value = false
