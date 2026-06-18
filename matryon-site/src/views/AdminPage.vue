@@ -53,26 +53,32 @@ watch(user, (u) => {
 })
 
 async function checkAdmin() {
-  const supabase = getSupabase()
-  if (supabase) {
-    const { data: { user: sessionUser } } = await supabase.auth.getUser()
-    if (sessionUser) user.value = sessionUser
+  try {
+    const supabase = getSupabase()
+    if (supabase) {
+      const { data: { user: sessionUser } } = await supabase.auth.getUser()
+      if (sessionUser) user.value = sessionUser
+    }
+    if (!user.value) {
+      router.push('/admin/login')
+      return
+    }
+    if (!isAdminEmail(user.value.email)) {
+      router.push('/')
+      return
+    }
+    const results = await Promise.allSettled([fetchReviews(), fetchProducts()])
+    const errors = results.filter(r => r.status === 'rejected').map(r => r.reason)
+    if (errors.length) {
+      loadingError.value = 'Некоторые данные не загрузились'
+      errors.forEach(e => console.error('Admin fetch error:', e))
+    }
+  } catch (e) {
+    loadingError.value = 'Ошибка загрузки: ' + e.message
+    console.error('checkAdmin error:', e)
+  } finally {
+    loading.value = false
   }
-  if (!user.value) {
-    router.push('/admin/login')
-    return
-  }
-  if (!isAdminEmail(user.value.email)) {
-    router.push('/')
-    return
-  }
-  const results = await Promise.allSettled([fetchReviews(), fetchProducts()])
-  const errors = results.filter(r => r.status === 'rejected').map(r => r.reason)
-  if (errors.length) {
-    loadingError.value = 'Некоторые данные не загрузились'
-    errors.forEach(e => console.error('Admin fetch error:', e))
-  }
-  loading.value = false
 }
 
 async function fetchReviews() {
