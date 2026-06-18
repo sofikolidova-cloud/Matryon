@@ -156,7 +156,7 @@ async function handleBuy() {
 
           <div class="price-section">
             <span class="price">{{ displayPrice }} РУБЛЕЙ</span>
-            <button class="buy-btn" @click="handleBuy">КУПИТЬ</button>
+            <button class="buy-btn" @click="handleBuy">ДОБАВИТЬ В КОРЗИНУ</button>
           </div>
         </div>
       </div>
@@ -191,7 +191,7 @@ async function handleBuy() {
           </div>
           <div class="lamp-price-section">
             <span class="lamp-price">{{ product.price }} РУБЛЕЙ</span>
-            <button class="lamp-buy-btn" @click="handleBuy">КУПИТЬ</button>
+            <button class="lamp-buy-btn" @click="handleBuy">ДОБАВИТЬ В КОРЗИНУ</button>
           </div>
         </div>
       </div>
@@ -226,7 +226,7 @@ async function handleBuy() {
           </div>
           <div class="socket-price-bar">
             <span class="socket-price">{{ product.price }} РУБЛЕЙ</span>
-            <span class="socket-buy-text" @click="handleBuy">КУПИТЬ</span>
+            <span class="socket-buy-text" @click="handleBuy">ДОБАВИТЬ В КОРЗИНУ</span>
           </div>
         </div>
       </div>
