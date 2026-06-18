@@ -218,7 +218,28 @@ DROP POLICY IF EXISTS "Cart items own delete" ON cart_items;
 CREATE POLICY "Cart items own delete" ON cart_items
   FOR DELETE USING (auth.uid() = user_id);
 
--- 10. Функция проверки существования email (для регистрации)
+-- 10. Таблица подписчиков (email-рассылка)
+CREATE TABLE IF NOT EXISTS subscribers (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE subscribers ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Subscribers public insert" ON subscribers;
+CREATE POLICY "Subscribers public insert" ON subscribers
+  FOR INSERT WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Subscribers admin select" ON subscribers;
+CREATE POLICY "Subscribers admin select" ON subscribers
+  FOR SELECT USING (auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Subscribers admin delete" ON subscribers;
+CREATE POLICY "Subscribers admin delete" ON subscribers
+  FOR DELETE USING (auth.role() = 'authenticated');
+
+-- 11. Функция проверки существования email (для регистрации)
 CREATE OR REPLACE FUNCTION check_email_exists(email_to_check TEXT)
 RETURNS BOOLEAN
 LANGUAGE plpgsql
