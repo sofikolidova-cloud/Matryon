@@ -2,8 +2,25 @@ import { ref, computed } from 'vue'
 import { getSupabase } from './supabase.js'
 import { useAuth } from './auth.js'
 
+const CART_STORAGE_KEY = 'matryon_cart'
 const items = ref([])
 const loaded = ref(false)
+
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem(CART_STORAGE_KEY)
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      items.value = parsed
+    }
+  } catch (e) {}
+}
+
+function saveToStorage() {
+  try {
+    localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items.value))
+  } catch (e) {}
+}
 
 export function useCart() {
   const supabase = getSupabase()
@@ -15,6 +32,7 @@ export function useCart() {
       loaded.value = false
       return
     }
+    loadFromStorage()
     const { data } = await supabase
       .from('cart_items')
       .select('*')
@@ -22,6 +40,7 @@ export function useCart() {
       .order('created_at', { ascending: false })
     if (data) {
       items.value = data
+      saveToStorage()
     }
     loaded.value = true
   }
@@ -36,6 +55,7 @@ export function useCart() {
         .eq('id', existing.id)
       if (!error) {
         existing.quantity++
+        saveToStorage()
       }
     } else {
       const { data, error } = await supabase
@@ -45,6 +65,7 @@ export function useCart() {
         .single()
       if (!error && data) {
         items.value.unshift(data)
+        saveToStorage()
       }
     }
   }
@@ -57,6 +78,7 @@ export function useCart() {
       .eq('id', itemId)
     if (!error) {
       items.value = items.value.filter(i => i.id !== itemId)
+      saveToStorage()
     }
   }
 
@@ -69,6 +91,7 @@ export function useCart() {
     if (!error) {
       const item = items.value.find(i => i.id === itemId)
       if (item) item.quantity = quantity
+      saveToStorage()
     }
   }
 
@@ -80,6 +103,7 @@ export function useCart() {
       .eq('user_id', user.value.id)
     if (!error) {
       items.value = []
+      saveToStorage()
     }
   }
 

@@ -10,7 +10,7 @@ if (hash.includes('access_token=')) {
     accessToken: params.get('access_token'),
     refreshToken: params.get('refresh_token')
   }
-  history.replaceState(null, '', '/')
+  history.replaceState(null, '', '/#/')
 }
 
 createApp(App).use(router).mount('#app')

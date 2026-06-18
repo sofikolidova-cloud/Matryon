@@ -43,6 +43,24 @@ function submitOrder() {
           </div>
         </div>
 
+        <div v-if="paymentMethod === 'card'" class="order-card">
+          <h2 class="order-section__title">Данные карты</h2>
+          <div class="order-card__fields">
+            <div class="order-card__field order-card__field--full">
+              <label class="order-card__label">Номер карты</label>
+              <input class="order-card__input" type="text" placeholder="0000 0000 0000 0000" maxlength="19" />
+            </div>
+            <div class="order-card__field">
+              <label class="order-card__label">Срок действия</label>
+              <input class="order-card__input" type="text" placeholder="ММ / ГГ" maxlength="7" />
+            </div>
+            <div class="order-card__field">
+              <label class="order-card__label">CVV</label>
+              <input class="order-card__input" type="text" placeholder="•••" maxlength="3" />
+            </div>
+          </div>
+        </div>
+
         <button class="order-submit" @click="submitOrder">
           ОФОРМИТЬ ЗАКАЗ
         </button>
@@ -127,6 +145,53 @@ function submitOrder() {
 
 .order-payment__option:hover {
   border-color: #040404;
+}
+
+.order-card {
+  background: #f8f8f8;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.order-card__fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.order-card__field--full {
+  grid-column: 1 / -1;
+}
+
+.order-card__label {
+  display: block;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: rgba(0,0,0,0.5);
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+
+.order-card__input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 18px;
+  background: white;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.order-card__input:focus {
+  outline: none;
+  border-color: #040404;
+}
+
+.order-card__input::placeholder {
+  color: #ccc;
 }
 
 .order-submit {
