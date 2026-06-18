@@ -9,6 +9,7 @@ const { init } = useAuth()
 const { message, visible, hide } = useNotification()
 
 onMounted(async () => {
+  await router.isReady()
   const recovered = await init()
   if (window.location.hash.includes('error=')) {
     router.replace('/')

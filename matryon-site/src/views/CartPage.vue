@@ -5,7 +5,7 @@ import AppHeader from '../components/AppHeader.vue'
 import AppFooter from '../components/AppFooter.vue'
 import { useAuth } from '../lib/auth.js'
 import { useCart } from '../lib/cart.js'
-import { fetchProductById } from '../lib/productData.js'
+import { getFallbackProducts, fetchProducts } from '../lib/productData.js'
 
 const router = useRouter()
 const { user } = useAuth()
@@ -18,13 +18,15 @@ onMounted(async () => {
     router.push('/login')
     return
   }
-  await load()
-  await Promise.all(items.value.map(async (item) => {
-    if (!products.value[item.product_id]) {
-      const p = await fetchProductById(item.product_id)
-      if (p) products.value[item.product_id] = p
-    }
-  }))
+
+  for (const p of getFallbackProducts()) {
+    products.value[p.id] = p
+  }
+
+  const [, all] = await Promise.all([load(), fetchProducts()])
+  for (const p of all) {
+    products.value[p.id] = p
+  }
 })
 
 const totalPrice = computed(() => {

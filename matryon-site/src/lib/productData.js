@@ -53,8 +53,12 @@ function attachImages(items) {
   return items.map(p => ({ ...p, image: p.image || productImages[p.id] || null }))
 }
 
-function getFallback() {
+export function getFallbackProducts() {
   return attachImages(fallbackProducts)
+}
+
+function getFallback() {
+  return getFallbackProducts()
 }
 
 export async function fetchProducts() {
