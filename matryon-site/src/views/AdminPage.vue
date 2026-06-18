@@ -643,4 +643,17 @@ onMounted(checkAdmin)
   .admin-card__edit, .admin-card__delete { flex: 1; text-align: center; }
   .modal-card { padding: 24px; }
 }
+@media (max-width: 480px) {
+  .admin-page { padding-top: 20px; padding-bottom: 24px; }
+  .admin-title { font-size: 24px; margin-bottom: 20px; }
+  .admin-tab { font-size: 14px; padding: 6px 10px; }
+  .admin-card { padding: 16px; gap: 12px; }
+  .admin-card__name { font-size: 16px; }
+  .admin-card__text { font-size: 12px; }
+  .admin-card__edit, .admin-card__delete { font-size: 11px; padding: 6px 10px; }
+  .admin-add-btn { font-size: 13px; padding: 12px 16px; }
+  .admin-empty { font-size: 14px; padding: 24px; }
+  .modal-card { padding: 16px; }
+  .modal-title { font-size: 22px; }
+}
 </style>

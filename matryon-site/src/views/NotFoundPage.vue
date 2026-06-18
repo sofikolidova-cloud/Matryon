@@ -64,4 +64,9 @@ useMeta('404 — Страница не найдена | Matryon', 'Страни�
   .not-found__title { font-size: 80px; }
   .not-found__text { font-size: 18px; }
 }
+@media (max-width: 480px) {
+  .not-found__title { font-size: 56px; }
+  .not-found__text { font-size: 16px; }
+  .not-found__btn { font-size: 14px; padding: 14px 32px; }
+}
 </style>

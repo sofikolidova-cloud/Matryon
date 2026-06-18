@@ -270,4 +270,13 @@ onMounted(loadProfile)
   .profile-avatar__circle { width: 72px; height: 72px; font-size: 32px; }
   .profile-field input { height: 48px; font-size: 16px; }
 }
+@media (max-width: 480px) {
+  .profile-page { padding-top: 20px; padding-bottom: 24px; }
+  .profile-card { padding: 24px 16px; gap: 20px; border-radius: 20px; }
+  .profile-title { font-size: 24px; }
+  .profile-avatar__circle { width: 60px; height: 60px; font-size: 26px; }
+  .profile-field input { height: 44px; font-size: 15px; }
+  .profile-save { height: 50px; font-size: 16px; }
+  .profile-signout { height: 50px; font-size: 16px; }
+}
 </style>

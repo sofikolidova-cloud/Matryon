@@ -162,4 +162,10 @@ async function handleLogin() {
   .admin-login__title { font-size: 32px; }
   .admin-login__field input { height: 48px; font-size: 16px; }
 }
+@media (max-width: 480px) {
+  .admin-login__card { padding: 32px 16px; gap: 24px; border-radius: 20px; }
+  .admin-login__title { font-size: 28px; }
+  .admin-login__field input { height: 44px; font-size: 15px; }
+  .admin-login__btn { height: 50px; font-size: 16px; }
+}
 </style>

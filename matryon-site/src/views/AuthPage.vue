@@ -176,6 +176,7 @@ async function sendMagicLink() {
 .auth-card {
   position: relative;
   width: 1000px;
+  max-width: 100%;
   min-height: 700px;
   background: #D9D9D9;
   border-radius: 10px;

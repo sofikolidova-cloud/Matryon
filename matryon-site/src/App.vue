@@ -90,4 +90,25 @@ onMounted(async () => {
   opacity: 0;
   transform: translateX(-50%) translateY(20px);
 }
+
+@media (max-width: 768px) {
+  .toast {
+    bottom: 24px;
+    padding: 14px 24px;
+    font-size: 14px;
+    max-width: calc(100vw - 32px);
+    white-space: normal;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .toast {
+    bottom: 16px;
+    padding: 12px 20px;
+    font-size: 13px;
+    max-width: calc(100vw - 24px);
+    border-radius: 8px;
+  }
+}
 </style>
