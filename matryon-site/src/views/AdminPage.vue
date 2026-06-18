@@ -54,9 +54,9 @@ watch(user, (u) => {
 
 async function checkAdmin() {
   const supabase = getSupabase()
-  if (!user.value && supabase) {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (session?.user) user.value = session.user
+  if (supabase) {
+    const { data: { user: sessionUser } } = await supabase.auth.getUser()
+    if (sessionUser) user.value = sessionUser
   }
   if (!user.value) {
     router.push('/admin/login')
