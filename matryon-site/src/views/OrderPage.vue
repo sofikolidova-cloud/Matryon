@@ -5,6 +5,16 @@ import AppFooter from '../components/AppFooter.vue'
 
 const paymentMethod = ref('card')
 const submitted = ref(false)
+const cardNumber = ref('')
+
+function formatCardNumber(value) {
+  const digits = value.replace(/\D/g, '').slice(0, 16)
+  return digits.replace(/(\d{4})(?=\d)/g, '$1 ')
+}
+
+function onCardInput(e) {
+  cardNumber.value = formatCardNumber(e.target.value)
+}
 
 function submitOrder() {
   submitted.value = true
@@ -48,7 +58,7 @@ function submitOrder() {
           <div class="order-card__fields">
             <div class="order-card__field order-card__field--full">
               <label class="order-card__label">Номер карты</label>
-              <input class="order-card__input" type="text" placeholder="0000 0000 0000 0000" maxlength="19" />
+              <input class="order-card__input" type="text" placeholder="0000 0000 0000 0000" maxlength="19" :value="cardNumber" @input="onCardInput" />
             </div>
             <div class="order-card__field">
               <label class="order-card__label">Срок действия</label>
