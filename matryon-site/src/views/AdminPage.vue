@@ -15,7 +15,7 @@ const { user, signOut } = useAuth()
 const loading = ref(true)
 const loadingError = ref('')
 
-function withTimeout(promise, ms = 5000) {
+function withTimeout(promise, ms = 10000) {
   return Promise.race([
     promise,
     new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), ms))
@@ -66,11 +66,11 @@ async function checkAdmin() {
     router.push('/')
     return
   }
-  try {
-    await withTimeout(Promise.all([fetchReviews(), fetchProducts()]))
-  } catch (e) {
-    loadingError.value = 'Не удалось загрузить данные — проверь подключение к Supabase'
-    console.warn('Admin data fetch error:', e)
+  const results = await Promise.allSettled([fetchReviews(), fetchProducts()])
+  const errors = results.filter(r => r.status === 'rejected').map(r => r.reason)
+  if (errors.length) {
+    loadingError.value = 'Некоторые данные не загрузились'
+    errors.forEach(e => console.error('Admin fetch error:', e))
   }
   loading.value = false
 }
