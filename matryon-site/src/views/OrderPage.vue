@@ -6,14 +6,25 @@ import AppFooter from '../components/AppFooter.vue'
 const paymentMethod = ref('card')
 const submitted = ref(false)
 const cardNumber = ref('')
+const cardExpiry = ref('')
 
 function formatCardNumber(value) {
   const digits = value.replace(/\D/g, '').slice(0, 16)
   return digits.replace(/(\d{4})(?=\d)/g, '$1 ')
 }
 
+function formatCardExpiry(value) {
+  const digits = value.replace(/\D/g, '').slice(0, 4)
+  if (digits.length > 2) return digits.slice(0, 2) + ' / ' + digits.slice(2)
+  return digits
+}
+
 function onCardInput(e) {
   cardNumber.value = formatCardNumber(e.target.value)
+}
+
+function onExpiryInput(e) {
+  cardExpiry.value = formatCardExpiry(e.target.value)
 }
 
 function submitOrder() {
@@ -62,7 +73,7 @@ function submitOrder() {
             </div>
             <div class="order-card__field">
               <label class="order-card__label">Срок действия</label>
-              <input class="order-card__input" type="text" placeholder="ММ / ГГ" maxlength="7" />
+              <input class="order-card__input" type="text" placeholder="ММ / ГГ" maxlength="7" :value="cardExpiry" @input="onExpiryInput" />
             </div>
             <div class="order-card__field">
               <label class="order-card__label">CVV</label>
