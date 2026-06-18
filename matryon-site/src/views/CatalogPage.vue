@@ -1,16 +1,41 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import AppHeader from '../components/AppHeader.vue'
 import AppFooter from '../components/AppFooter.vue'
 import { fetchProducts } from '../lib/productData.js'
 import { useMeta } from '../lib/useMeta.js'
+import { useAuth } from '../lib/auth.js'
+import { useCart } from '../lib/cart.js'
+import { useNotification } from '../lib/notification.js'
 
 useMeta('Каталог — Matryon | Умные колонки, лампы, розетки', 'Каталог умных устройств Matryon: колонки, лампы и розетки с голосовым управлением.')
 
+const route = useRoute()
+const router = useRouter()
+const { user } = useAuth()
+const { addItem } = useCart()
+const { show } = useNotification()
 const speakers = ref([])
 const lamps = ref([])
 const sockets = ref([])
 const loading = ref(true)
+
+async function handleBuy(e, productId) {
+  e.stopPropagation()
+  e.preventDefault()
+  if (!user.value) {
+    router.push('/login?redirect=' + encodeURIComponent(router.currentRoute.value.fullPath))
+    return
+  }
+  if (productId) {
+    await addItem(productId)
+    show('Товар добавлен в корзину')
+    setTimeout(() => {
+      router.push('/cart')
+    }, 800)
+  }
+}
 
 onMounted(async () => {
   const all = await fetchProducts()
@@ -18,6 +43,15 @@ onMounted(async () => {
   lamps.value = all.filter(p => p.type === 'lamp')
   sockets.value = all.filter(p => p.type === 'socket')
   loading.value = false
+  await nextTick()
+  const type = route.query.type
+  if (type === 'speaker') {
+    document.getElementById('section-speaker')?.scrollIntoView({ behavior: 'smooth' })
+  } else if (type === 'lamp') {
+    document.getElementById('section-lamp')?.scrollIntoView({ behavior: 'smooth' })
+  } else if (type === 'socket') {
+    document.getElementById('section-socket')?.scrollIntoView({ behavior: 'smooth' })
+  }
 })
 </script>
 
@@ -30,7 +64,7 @@ onMounted(async () => {
     <section v-else class="container catalog-hero fade-in">
       <h1 class="catalog-title">КАТАЛОГ</h1>
 
-      <div class="catalog-card fade-in">
+      <div id="section-speaker" class="catalog-card fade-in">
         <div class="section-label">//КОЛОНКИ</div>
         <div class="catalog-grid">
           <router-link v-for="(item, index) in speakers" :key="'sp'+index" :to="'/product/' + item.id" class="product-card">
@@ -41,17 +75,17 @@ onMounted(async () => {
               <h3 class="product-card__name">{{ item.name }}</h3>
               <p class="product-card__desc">{{ item.desc }}</p>
             </div>
-            <div class="product-card__action">
-              <span>ПОДРОБНЕЕ</span>
-              <svg width="35" height="35" viewBox="0 0 35 35" fill="none">
-                <path d="M28.4375 16.6797H18.3203V6.5625C18.3203 6.07934 17.9832 5.6875 17.5 5.6875C17.0168 5.6875 16.6797 6.07934 16.6797 6.5625V16.6797H6.5625C6.07934 16.6797 5.6875 17.0168 5.6875 17.5C5.6875 17.9832 6.07934 18.3203 6.5625 18.3203H16.6797V28.4375C16.6797 28.9207 17.0168 29.3125 17.5 29.3125C17.9832 29.3125 18.3203 28.9207 18.3203 28.4375V18.3203H28.4375C28.9207 18.3203 29.3125 17.9832 29.3125 17.5C29.3125 17.0168 28.9207 16.6797 28.4375 16.6797Z" fill="white"/>
+            <div class="product-card__action" @click="e => handleBuy(e, item.id)">
+              <span>КУПИТЬ</span>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1.003 1.003 0 0020 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" fill="white"/>
               </svg>
             </div>
           </router-link>
         </div>
       </div>
 
-      <div class="catalog-card fade-in">
+      <div id="section-lamp" class="catalog-card fade-in">
         <div class="section-label">//ЛАМПОЧКИ</div>
         <div class="catalog-grid">
           <router-link v-for="(item, index) in lamps" :key="'lamp'+index" :to="'/product/' + item.id" class="product-card">
@@ -62,17 +96,17 @@ onMounted(async () => {
               <h3 class="product-card__name">{{ item.name }}</h3>
               <p class="product-card__desc">{{ item.desc }}</p>
             </div>
-            <div class="product-card__action">
-              <span>ПОДРОБНЕЕ</span>
-              <svg width="35" height="35" viewBox="0 0 35 35" fill="none">
-                <path d="M28.4375 16.6797H18.3203V6.5625C18.3203 6.07934 17.9832 5.6875 17.5 5.6875C17.0168 5.6875 16.6797 6.07934 16.6797 6.5625V16.6797H6.5625C6.07934 16.6797 5.6875 17.0168 5.6875 17.5C5.6875 17.9832 6.07934 18.3203 6.5625 18.3203H16.6797V28.4375C16.6797 28.9207 17.0168 29.3125 17.5 29.3125C17.9832 29.3125 18.3203 28.9207 18.3203 28.4375V18.3203H28.4375C28.9207 18.3203 29.3125 17.9832 29.3125 17.5C29.3125 17.0168 28.9207 16.6797 28.4375 16.6797Z" fill="white"/>
+            <div class="product-card__action" @click="e => handleBuy(e, item.id)">
+              <span>КУПИТЬ</span>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1.003 1.003 0 0020 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" fill="white"/>
               </svg>
             </div>
           </router-link>
         </div>
       </div>
 
-      <div class="catalog-card fade-in">
+      <div id="section-socket" class="catalog-card fade-in">
         <div class="section-label">//РОЗЕТКИ</div>
         <div class="catalog-grid catalog-grid--3">
           <router-link v-for="(item, index) in sockets" :key="'socket'+index" :to="'/product/' + item.id" class="product-card">
@@ -83,10 +117,10 @@ onMounted(async () => {
               <h3 class="product-card__name">{{ item.name }}</h3>
               <p class="product-card__desc">{{ item.desc }}</p>
             </div>
-            <div class="product-card__action">
-              <span>ПОДРОБНЕЕ</span>
-              <svg width="35" height="35" viewBox="0 0 35 35" fill="none">
-                <path d="M28.4375 16.6797H18.3203V6.5625C18.3203 6.07934 17.9832 5.6875 17.5 5.6875C17.0168 5.6875 16.6797 6.07934 16.6797 6.5625V16.6797H6.5625C6.07934 16.6797 5.6875 17.0168 5.6875 17.5C5.6875 17.9832 6.07934 18.3203 6.5625 18.3203H16.6797V28.4375C16.6797 28.9207 17.0168 29.3125 17.5 29.3125C17.9832 29.3125 18.3203 28.9207 18.3203 28.4375V18.3203H28.4375C28.9207 18.3203 29.3125 17.9832 29.3125 17.5C29.3125 17.0168 28.9207 16.6797 28.4375 16.6797Z" fill="white"/>
+            <div class="product-card__action" @click="e => handleBuy(e, item.id)">
+              <span>КУПИТЬ</span>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1.003 1.003 0 0020 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" fill="white"/>
               </svg>
             </div>
           </router-link>
@@ -98,11 +132,6 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-.catalog-page {
-  background: #fff;
-  overflow: hidden;
-}
-
 .catalog-loading {
   display: flex;
   align-items: center;
@@ -138,10 +167,11 @@ onMounted(async () => {
 }
 
 .catalog-card {
-  background: #E7E7E7;
+  background: #ffffff;
   border-radius: 30px;
   padding: 74px 80px 60px;
   margin-bottom: 118px;
+  border: 1px solid #eee;
 }
 
 .section-label {
@@ -168,11 +198,8 @@ onMounted(async () => {
   flex-direction: column;
   align-items: center;
   gap: 24px;
-  transition: transform 0.3s ease;
-}
-
-.product-card:hover {
-  transform: translateY(-6px);
+  text-decoration: none;
+  color: inherit;
 }
 
 .product-card__image {
@@ -214,23 +241,27 @@ onMounted(async () => {
 
 .product-card__action {
   width: 100%;
-  height: 80px;
-  padding: 12px 16px;
+  height: 0;
+  padding: 0 16px;
   background: black;
   border-radius: 12px;
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
-  transition: opacity 0.3s ease;
+  align-items: center;
+  transition: height 0.3s ease, padding 0.3s ease, opacity 0.3s ease;
+  opacity: 0;
+  overflow: hidden;
 }
 
 .product-card:hover .product-card__action {
-  opacity: 0.85;
+  height: 52px;
+  padding: 0 16px;
+  opacity: 1;
 }
 
 .product-card__action span {
   font-family: 'Roboto Mono', monospace;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 400;
   color: white;
 }
@@ -272,9 +303,6 @@ onMounted(async () => {
   .product-card__desc {
     font-size: 12px;
   }
-  .product-card__action {
-    height: 60px;
-  }
   .catalog-hero {
     padding-top: 24px;
   }
@@ -307,16 +335,12 @@ onMounted(async () => {
   .product-card__desc {
     font-size: 11px;
   }
-  .product-card__action {
-    height: 52px;
-    padding: 8px 12px;
-  }
   .product-card__action span {
-    font-size: 13px;
+    font-size: 12px;
   }
   .product-card__action svg {
-    width: 28px;
-    height: 28px;
+    width: 22px;
+    height: 22px;
   }
 }
 </style>

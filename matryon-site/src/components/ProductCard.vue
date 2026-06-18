@@ -1,9 +1,39 @@
 <script setup>
-defineProps({
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuth } from '../lib/auth.js'
+import { useCart } from '../lib/cart.js'
+import { useNotification } from '../lib/notification.js'
+
+const props = defineProps({
   name: String,
   description: String,
-  image: String
+  image: String,
+  productId: String
 })
+
+const router = useRouter()
+const { user } = useAuth()
+const { addItem } = useCart()
+const { show } = useNotification()
+const adding = ref(false)
+
+async function handleBuy(e) {
+  e.stopPropagation()
+  e.preventDefault()
+  if (!user.value) {
+    router.push('/login?redirect=' + encodeURIComponent(router.currentRoute.value.fullPath))
+    return
+  }
+  if (!props.productId || adding.value) return
+  adding.value = true
+  await addItem(props.productId)
+  adding.value = false
+  show('Товар добавлен в корзину')
+  setTimeout(() => {
+    router.push('/cart')
+  }, 800)
+}
 </script>
 
 <template>
@@ -15,10 +45,10 @@ defineProps({
       <h3 class="product-card__name">{{ name }}</h3>
       <p class="product-card__desc">{{ description }}</p>
     </div>
-    <div class="product-card__action">
-      <span>ПОДРОБНЕЕ</span>
-      <svg width="35" height="35" viewBox="0 0 35 35" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M28.4375 16.6797H18.3203V6.5625C18.3203 6.07934 17.9832 5.6875 17.5 5.6875C17.0168 5.6875 16.6797 6.07934 16.6797 6.5625V16.6797H6.5625C6.07934 16.6797 5.6875 17.0168 5.6875 17.5C5.6875 17.9832 6.07934 18.3203 6.5625 18.3203H16.6797V28.4375C16.6797 28.9207 17.0168 29.3125 17.5 29.3125C17.9832 29.3125 18.3203 28.9207 18.3203 28.4375V18.3203H28.4375C28.9207 18.3203 29.3125 17.9832 29.3125 17.5C29.3125 17.0168 28.9207 16.6797 28.4375 16.6797Z" fill="white"/>
+    <div class="product-card__action" @click="handleBuy">
+      <span>КУПИТЬ</span>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1.003 1.003 0 0020 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" fill="white"/>
       </svg>
     </div>
   </div>
@@ -29,12 +59,12 @@ defineProps({
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 44px;
+  gap: 24px;
 }
 
 .product-card__image {
-  width: 238px;
-  height: 397px;
+  width: 200px;
+  height: 320px;
   background: #f0f0f0;
   border-radius: 8px;
   overflow: hidden;
@@ -49,12 +79,12 @@ defineProps({
 .product-card__info {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
   width: 100%;
 }
 
 .product-card__name {
-  font-size: 64px;
+  font-size: 48px;
   font-family: 'Onest', sans-serif;
   font-weight: 500;
   color: black;
@@ -62,84 +92,81 @@ defineProps({
 
 .product-card__desc {
   font-family: 'Roboto Mono', monospace;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 400;
   color: rgba(0, 0, 0, 0.7);
 }
 
-.product-card {
-  transition: transform 0.3s ease;
-}
-
-.product-card:hover {
-  transform: translateY(-6px);
-}
-
 .product-card__action {
-  width: 280px;
-  height: 120px;
-  padding: 16px 10px;
+  width: 220px;
+  height: 0;
+  padding: 0 10px;
   background: black;
   border-radius: 12px;
   display: flex;
   justify-content: space-between;
-  align-items: flex-end;
-  transition: opacity 0.3s ease;
+  align-items: center;
+  transition: height 0.3s ease, padding 0.3s ease, opacity 0.3s ease;
+  opacity: 0;
+  overflow: hidden;
 }
 
 .product-card:hover .product-card__action {
-  opacity: 0.85;
+  height: 52px;
+  padding: 0 16px;
+  opacity: 1;
 }
 
 .product-card__action span {
   font-family: 'Roboto Mono', monospace;
-  font-size: 20px;
+  font-size: 14px;
   font-weight: 400;
   color: white;
 }
 
 @media (max-width: 768px) {
   .product-card__name {
-    font-size: 36px;
+    font-size: 32px;
   }
   .product-card__image {
-    width: 180px;
-    height: 300px;
+    width: 160px;
+    height: 260px;
   }
   .product-card__action {
-    width: 220px;
-    height: 90px;
+    width: 180px;
   }
   .product-card {
-    gap: 24px;
+    gap: 18px;
   }
 }
 
 @media (max-width: 480px) {
   .product-card__image {
-    width: 140px;
-    height: 233px;
+    width: 130px;
+    height: 210px;
   }
   .product-card__name {
-    font-size: 28px;
+    font-size: 24px;
   }
   .product-card__desc {
-    font-size: 14px;
+    font-size: 13px;
   }
   .product-card__action {
-    width: 180px;
-    height: 70px;
-    padding: 10px;
+    width: 160px;
+  }
+  .product-card:hover .product-card__action {
+    height: 44px;
+    padding: 0 12px;
   }
   .product-card__action span {
-    font-size: 14px;
+    font-size: 12px;
   }
   .product-card__action svg {
-    width: 28px;
-    height: 28px;
+    width: 22px;
+    height: 22px;
   }
   .product-card {
-    gap: 16px;
+    gap: 14px;
   }
 }
 </style>

@@ -30,7 +30,10 @@ onMounted(() => {
 })
 
 watch(user, (u) => {
-  if (u) router.push('/')
+  if (u) {
+    const redirect = router.currentRoute.value.query.redirect
+    router.push(redirect || '/')
+  }
 })
 
 function formatPhone(digits) {

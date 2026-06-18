@@ -205,9 +205,9 @@ function nextReview() { if (currentPage.value < totalPages.value - 1) currentPag
         <p class="popular__intro">Самые популярные умные колонки, помогающие настроить твой день на успех</p>
         <span class="section-label">// ПОПУЛЯРНЫЕ</span>
         <div class="popular__grid">
-          <router-link v-for="(product, index) in popularProducts" :key="index" :to="'/product/' + product.productId" class="popular__link">
-            <ProductCard :name="product.name" :description="product.description" :image="product.image" />
-          </router-link>
+          <div v-for="(product, index) in popularProducts" :key="index" class="popular__link" @click="router.push('/product/' + product.productId)">
+            <ProductCard :name="product.name" :description="product.description" :image="product.image" :productId="product.productId" />
+          </div>
         </div>
       </div>
     </section>
@@ -484,6 +484,7 @@ function nextReview() { if (currentPage.value < totalPages.value - 1) currentPag
   display: block;
   text-decoration: none;
   color: inherit;
+  cursor: pointer;
 }
 
 .usecases {

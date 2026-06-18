@@ -1,15 +1,25 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import logoSvg from '../assets/icons/logo.svg'
 import { useAuth } from '../lib/auth.js'
+import { useCart } from '../lib/cart.js'
 
 defineProps({
   transparent: Boolean
 })
 
 const { user, signOut } = useAuth()
+const { totalItems, load } = useCart()
 
 const menuOpen = ref(false)
+
+onMounted(() => {
+  if (user.value) load()
+})
+
+watch(user, (val) => {
+  if (val) load()
+})
 const userLabel = computed(() => {
   const meta = user.value?.user_metadata
   return meta?.full_name || user.value?.email || ''
@@ -36,7 +46,7 @@ async function handleSignOut() {
         <router-link to="/" @click="closeMenu" class="header__logo">
           <img :src="logoSvg" alt="Matryon" width="25" height="23" />
         </router-link>
-        <router-link to="/auth" class="header__order" @click="closeMenu">
+        <router-link to="/order" class="header__order" @click="closeMenu">
           <span>заказать</span>
           <svg width="35" height="35" viewBox="0 0 35 35" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M25.3704 16.9097H18.0903V9.62963C18.0903 9.28196 17.8477 9 17.5 9C17.1523 9 16.9097 9.28196 16.9097 9.62963V16.9097H9.62963C9.28196 16.9097 9 17.1523 9 17.5C9 17.8477 9.28196 18.0903 9.62963 18.0903H16.9097V25.3704C16.9097 25.718 17.1523 26 17.5 26C17.8477 26 18.0903 25.718 18.0903 25.3704V18.0903H25.3704C25.718 18.0903 26 17.8477 26 17.5C26 17.1523 25.718 16.9097 25.3704 16.9097Z" :fill="transparent ? 'white' : 'black'"/>
@@ -45,6 +55,12 @@ async function handleSignOut() {
       </div>
 
       <div class="header__right">
+        <router-link to="/cart" class="header__cart" @click="closeMenu">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1.003 1.003 0 0020 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" :fill="transparent ? 'white' : 'black'"/>
+          </svg>
+          <span v-if="totalItems > 0" class="header__cart-badge">{{ totalItems > 99 ? '99+' : totalItems }}</span>
+        </router-link>
         <div class="header__menu-btn" @click="toggleMenu">
           <svg width="20" height="20" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M24.1803 10H5.81967C5.60228 10 5.39379 9.89464 5.24008 9.70711C5.08636 9.51957 5 9.26522 5 9C5 8.73478 5.08636 8.48043 5.24008 8.29289C5.39379 8.10536 5.60228 8 5.81967 8H24.1803C24.3977 8 24.6062 8.10536 24.7599 8.29289C24.9136 8.48043 25 8.73478 25 9C25 9.26522 24.9136 9.51957 24.7599 9.70711C24.6062 9.89464 24.3977 10 24.1803 10Z" :fill="transparent ? 'white' : 'black'"/>
@@ -140,6 +156,38 @@ async function handleSignOut() {
   opacity: 0.6;
 }
 
+.header__cart {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  transition: opacity 0.2s;
+  text-decoration: none;
+}
+
+.header__cart:hover {
+  opacity: 0.6;
+}
+
+.header__cart-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  min-width: 18px;
+  height: 18px;
+  background: #d32f2f;
+  color: white;
+  font-family: 'Onest', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  line-height: 1;
+}
+
 .header__menu-btn span {
   font-family: 'Roboto Mono', monospace;
   font-size: 20px;
@@ -218,6 +266,10 @@ async function handleSignOut() {
 }
 
 .header--transparent .header__menu-btn span {
+  color: white;
+}
+
+.header--transparent .header__cart svg {
   color: white;
 }
 

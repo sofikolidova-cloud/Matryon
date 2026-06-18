@@ -39,12 +39,12 @@ const subscribe = async () => {
         <div class="footer__col footer__col--center">
           <span class="footer__products-title">Matryon</span>
           <ul class="footer__products-list">
-            <li>Matryon plus</li>
-            <li>Matryon plus 2</li>
-            <li>Matryon link</li>
-            <li>Matryon home</li>
-            <li>Matryon smart</li>
-            <li>Matryon flow</li>
+            <li><router-link to="/product/sp-base">Matryon Base</router-link></li>
+            <li><router-link to="/product/sp-light">Matryon Light</router-link></li>
+            <li><router-link to="/product/sp-pro">Matryon Pro</router-link></li>
+            <li><router-link to="/product/sp-mini">Matryon Mini</router-link></li>
+            <li><router-link to="/product/sp-air">Matryon Air</router-link></li>
+            <li><router-link to="/product/sp-max">Matryon Max</router-link></li>
           </ul>
         </div>
         <div class="footer__col footer__col--right">
@@ -148,7 +148,16 @@ const subscribe = async () => {
   font-size: 20px;
   font-weight: 400;
   text-transform: uppercase;
+}
+
+.footer__products-list li a {
   color: rgba(0, 0, 0, 0.7);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer__products-list li a:hover {
+  color: #040404;
 }
 
 .footer__newsletter-text {

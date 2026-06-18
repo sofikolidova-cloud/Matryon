@@ -190,7 +190,35 @@ CREATE POLICY "Avatar own update" ON storage.objects
     bucket_id = 'avatars' AND auth.uid() = owner
   );
 
--- 9. Функция проверки существования email (для регистрации)
+-- 9. Таблица корзины
+CREATE TABLE IF NOT EXISTS cart_items (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  product_id TEXT NOT NULL,
+  quantity INTEGER NOT NULL DEFAULT 1,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(user_id, product_id)
+);
+
+ALTER TABLE cart_items ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Cart items own select" ON cart_items;
+CREATE POLICY "Cart items own select" ON cart_items
+  FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Cart items own insert" ON cart_items;
+CREATE POLICY "Cart items own insert" ON cart_items
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Cart items own update" ON cart_items;
+CREATE POLICY "Cart items own update" ON cart_items
+  FOR UPDATE USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Cart items own delete" ON cart_items;
+CREATE POLICY "Cart items own delete" ON cart_items
+  FOR DELETE USING (auth.uid() = user_id);
+
+-- 10. Функция проверки существования email (для регистрации)
 CREATE OR REPLACE FUNCTION check_email_exists(email_to_check TEXT)
 RETURNS BOOLEAN
 LANGUAGE plpgsql
