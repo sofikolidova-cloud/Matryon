@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuth } from '../lib/auth.js'
 import { useCart } from '../lib/cart.js'
 import { useNotification } from '../lib/notification.js'
@@ -13,6 +13,7 @@ const props = defineProps({
 })
 
 const router = useRouter()
+const route = useRoute()
 const { user } = useAuth()
 const { addItem } = useCart()
 const { show } = useNotification()
@@ -22,12 +23,16 @@ async function handleBuy(e) {
   e.stopPropagation()
   e.preventDefault()
   if (!user.value) {
-    router.push('/login?redirect=' + encodeURIComponent(router.currentRoute.value.fullPath))
+    router.push('/login?redirect=' + encodeURIComponent(route.fullPath))
     return
   }
   if (!props.productId || adding.value) return
   adding.value = true
-  await addItem(props.productId)
+  try {
+    await addItem(props.productId)
+  } catch (e) {
+    console.error('Cart add error:', e)
+  }
   adding.value = false
   show('Товар добавлен в корзину')
   setTimeout(() => {

@@ -27,7 +27,11 @@ async function handleBuy(productId) {
     return
   }
   if (productId) {
-    await addItem(productId)
+    try {
+      await addItem(productId)
+    } catch (e) {
+      console.error('Cart add error:', e)
+    }
     show('Товар добавлен в корзину')
     setTimeout(() => {
       router.push('/cart')
