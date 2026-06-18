@@ -26,6 +26,20 @@ export function useAuth() {
       user.value = session?.user ?? null
     })
 
+    const pending = window.__authTokens
+    if (pending) {
+      delete window.__authTokens
+      try {
+        await supabase.auth.setSession({
+          access_token: pending.accessToken,
+          refresh_token: pending.refreshToken || ''
+        })
+      } catch (e) {
+        console.warn('Session recovery failed:', e)
+      }
+      return true
+    }
+
     const tokens = extractTokensFromHash()
     if (tokens?.accessToken) {
       try {

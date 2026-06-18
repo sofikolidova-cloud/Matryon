@@ -89,9 +89,7 @@ async function handleBuy() {
   }
   adding.value = false
   show('Товар добавлен в корзину')
-  setTimeout(() => {
-    router.push('/cart')
-  }, 800)
+  router.push('/cart')
 }
 </script>
 

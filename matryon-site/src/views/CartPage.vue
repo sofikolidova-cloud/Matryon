@@ -19,12 +19,12 @@ onMounted(async () => {
     return
   }
   await load()
-  for (const item of items.value) {
+  await Promise.all(items.value.map(async (item) => {
     if (!products.value[item.product_id]) {
       const p = await fetchProductById(item.product_id)
       if (p) products.value[item.product_id] = p
     }
-  }
+  }))
 })
 
 const totalPrice = computed(() => {

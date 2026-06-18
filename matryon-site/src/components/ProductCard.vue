@@ -1,9 +1,5 @@
 <script setup>
-import { ref } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { useAuth } from '../lib/auth.js'
-import { useCart } from '../lib/cart.js'
-import { useNotification } from '../lib/notification.js'
+import { useRouter } from 'vue-router'
 
 const props = defineProps({
   name: String,
@@ -13,31 +9,11 @@ const props = defineProps({
 })
 
 const router = useRouter()
-const route = useRoute()
-const { user } = useAuth()
-const { addItem } = useCart()
-const { show } = useNotification()
-const adding = ref(false)
 
-async function handleBuy(e) {
+function handleDetails(e) {
   e.stopPropagation()
-  e.preventDefault()
-  if (!user.value) {
-    router.push('/login?redirect=' + encodeURIComponent(route.fullPath))
-    return
-  }
-  if (!props.productId || adding.value) return
-  adding.value = true
-  try {
-    await addItem(props.productId)
-  } catch (e) {
-    console.error('Cart add error:', e)
-  }
-  adding.value = false
-  show('Товар добавлен в корзину')
-  setTimeout(() => {
-    router.push('/cart')
-  }, 800)
+  if (!props.productId) return
+  router.push('/product/' + props.productId)
 }
 </script>
 
@@ -50,11 +26,8 @@ async function handleBuy(e) {
       <h3 class="product-card__name">{{ name }}</h3>
       <p class="product-card__desc">{{ description }}</p>
     </div>
-    <div class="product-card__action" @click="handleBuy">
-      <span>КУПИТЬ</span>
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1.003 1.003 0 0020 4H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" fill="white"/>
-      </svg>
+    <div class="product-card__action" @click="handleDetails">
+      <span>ПОДРОБНЕЕ</span>
     </div>
   </div>
 </template>
@@ -103,17 +76,18 @@ async function handleBuy(e) {
 }
 
 .product-card__action {
-  width: 220px;
+  width: 200px;
   height: 0;
   padding: 0 10px;
   background: black;
   border-radius: 12px;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   transition: height 0.3s ease, padding 0.3s ease, opacity 0.3s ease;
   opacity: 0;
   overflow: hidden;
+  cursor: pointer;
 }
 
 .product-card:hover .product-card__action {
@@ -138,7 +112,7 @@ async function handleBuy(e) {
     height: 260px;
   }
   .product-card__action {
-    width: 180px;
+    width: 170px;
   }
   .product-card {
     gap: 18px;
@@ -157,7 +131,7 @@ async function handleBuy(e) {
     font-size: 13px;
   }
   .product-card__action {
-    width: 160px;
+    width: 150px;
   }
   .product-card:hover .product-card__action {
     height: 44px;
@@ -165,10 +139,6 @@ async function handleBuy(e) {
   }
   .product-card__action span {
     font-size: 12px;
-  }
-  .product-card__action svg {
-    width: 22px;
-    height: 22px;
   }
   .product-card {
     gap: 14px;
