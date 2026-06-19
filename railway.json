@@ -1,8 +1,3 @@
 {
-  "build": {
-    "builder": "NIXPACKS"
-  },
-  "deploy": {
-    "rootDir": "matryon-site"
-  }
+  "startCommand": "sirv dist --single --port $PORT --cors"
 }
