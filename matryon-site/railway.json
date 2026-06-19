@@ -3,6 +3,6 @@
     "buildCommand": "npm install && npm run build"
   },
   "deploy": {
-    "startCommand": "npx sirv dist --single --host --port $PORT --cors"
+    "startCommand": "node server.js"
   }
 }
