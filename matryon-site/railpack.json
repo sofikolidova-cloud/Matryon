@@ -1,0 +1,3 @@
+{
+  "startCommand": "sirv dist --single --host --port $PORT --cors"
+}
