@@ -1,8 +1,0 @@
-{
-  "build": {
-    "buildCommand": "npm install && npm run build"
-  },
-  "deploy": {
-    "startCommand": "sirv dist --single --port $PORT --cors"
-  }
-}
